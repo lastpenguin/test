@@ -86,7 +86,7 @@ namespace DATA{
     UINT64 g_Benchmark_Score = 0;
     UINT64 g_Benchmark_Score_Best = 0;
 
-    double g_PoopGame_Score = 0;
+    double g_PoopGame_Score = 0; //Time
     UINT64 g_PoopGame_Score_Best = 0;
 
     BOOL g_flagPause = FALSE;
@@ -130,19 +130,26 @@ namespace DATA{
             fX = gc_ScreenSizeWidth / 2.f;
             fY = gc_ScreenSizeHeight / 2.f;
             fSize = (float)Setting.sc_Size_MinRadius;
+            fSec_Warnning = 0.f;
         }
         float fX, fY;
         float fSize;
+        float fSec_Warnning;
 
-        struct{
-            static const int sc_Speed_per_Sec = 50;
-            static const int sc_LimitFPS = 30;
+        struct TSetting{
+            static const int sc_Speed_per_Sec = 100;
+            static const int sc_GameSpeed = 2;
 
             static const int sc_Size_MinRadius = 3;
             static const int sc_Size_MaxRadius = 30;
 
-            static const int sc_Recduction_per_Sec__Numerator = 1;
-            static const int sc_Recduction_per_Sec__Denominator = 10;
+            static const int sc_Recduction_per_Sec__Numerator = 5;
+            static const int sc_Recduction_per_Sec__Denominator = 100;
+
+            const float sc_fSec_CollisionWarnning;
+            TSetting()
+            : sc_fSec_CollisionWarnning(0.3f)
+            {}
         }Setting;
     }g_PoopGamePlayer;
 
@@ -657,6 +664,7 @@ void RequestPoopGame()
     DATA::g_PoopGame_Score = 0;
 
     DATA::g_PoopGamePlayer.Initialize();
+    DATA::g_Speed = DATA::g_PoopGamePlayer.Setting.sc_GameSpeed;
 }
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -699,6 +707,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             break;
 
         case VK_F5:
+            if(DATA::g_flagMode == DATA::E_MODE::E_Game_Poop)
+                break;
             Reset();
             break;
 
@@ -729,11 +739,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 DATA::g_Wind++;
             break;
         case VK_PRIOR: // 페이지업
+            if(DATA::g_flagMode == DATA::E_MODE::E_Game_Poop)
+                break;
             DATA::g_Speed++;
             if(32 < DATA::g_Speed)
                 DATA::g_Speed = 32;
             break;
         case VK_NEXT: // 페이지 다운
+            if(DATA::g_flagMode == DATA::E_MODE::E_Game_Poop)
+                break;
             if(DATA::g_Speed > 1)
                 DATA::g_Speed--;
             break;
@@ -1190,12 +1204,11 @@ void Draw_InfoText()
         switch(DATA::g_flagMode)
         {
         case DATA::E_MODE::E_Benchmark:
-        case DATA::E_MODE::E_Game_Poop:
-            len += sprintf_s(str+len, sizeof(str)-len, "(%d)Limit FPS", (int)(DATA::gc_fps * DATA::g_Speed));
+            len += sprintf_s(str+len, sizeof(str)-len, "Unlimited FPS");
             break;
 
         default:
-            len += sprintf_s(str+len, sizeof(str)-len, "Unlimited FPS");
+            len += sprintf_s(str+len, sizeof(str)-len, "(%d)Limit FPS", (int)(DATA::gc_fps * DATA::g_Speed));
         }
 
         SetTextColor(DATA::g_hdcB, RGB(0,128,255));
@@ -2037,11 +2050,14 @@ void FrameProcess()
 }
 void FrameProcess_PoopGame_Player()
 {
+
+    const float fLimitFPS = (float)DATA::g_PoopGamePlayer.Setting.sc_GameSpeed * (float)DATA::gc_fps;
+
     float fps = DATA::g_stats_FPS;
     if(fps <= 0.f)
         return;
-    else if((float)DATA::g_PoopGamePlayer.Setting.sc_LimitFPS < fps)
-        fps = (float)DATA::g_PoopGamePlayer.Setting.sc_LimitFPS;
+    else if(fLimitFPS < fps)
+        fps = fLimitFPS;
 
     float spf = 0.f;
     if(0.f < fps)
@@ -2129,7 +2145,7 @@ void FrameProcess_PoopGame_Player()
             else if(iPower <= 128)
                 continue;
 
-            bCollision = TRUE;
+
 
             int mX = DATA::gc_maxHorizonWave+x;
             int mY = y;
@@ -2148,10 +2164,21 @@ void FrameProcess_PoopGame_Player()
 
             DATA::g_PoopGamePlayer.fSize += ( (float)(bAdd) / 10.f);
             DATA::g_Map[mX][mY].snow_unit = 0;
+
+            bCollision = TRUE;
         }
     }
-    if(!bCollision)
+    if(bCollision)
     {
+        // 충돌 경고
+        DATA::g_PoopGamePlayer.fSec_Warnning = DATA::g_PoopGamePlayer.Setting.sc_fSec_CollisionWarnning;
+    }
+    else
+    {
+        DATA::g_PoopGamePlayer.fSec_Warnning -= spf;
+        if(DATA::g_PoopGamePlayer.fSec_Warnning < 0.f)
+            DATA::g_PoopGamePlayer.fSec_Warnning = 0.f;
+
         // 크기 감소
         float fReduction = (float)DATA::g_PoopGamePlayer.Setting.sc_Recduction_per_Sec__Numerator / (float)DATA::g_PoopGamePlayer.Setting.sc_Recduction_per_Sec__Denominator;
         DATA::g_PoopGamePlayer.fSize -= (spf * fReduction);
@@ -2251,7 +2278,10 @@ void RenderProcess_PoopGame_Player()
             else if(iPower <= 0)
                 continue;
 
-            DrawPixel(x, y, TPixelColor(0, iPower, iPower));
+            if(0.f < DATA::g_PoopGamePlayer.fSec_Warnning)
+                DrawPixel(x, y, TPixelColor(iPower, 0, 0));
+            else
+                DrawPixel(x, y, TPixelColor(0, iPower, iPower));
         }
     }
 }
@@ -2373,7 +2403,6 @@ void AutoSnowIncrement_Benchmarking()
 }
 void AutoSnowIncrement_PoopGame()
 {
-
 }
 void AutoSnowIncrement()
 {
