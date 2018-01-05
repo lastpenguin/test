@@ -8,9 +8,9 @@
 #include <math.h>
 #include <queue>
 #include <assert.h>
-// ±×¸®±â
-//  ¸ØÃæ »óÅÂ¿¡¼­ ¸¶¿ì½º Å¬¸¯ µå·¡±×
-//  ºê·¯½¬ Å©±â 1~9
+// ê·¸ë¦¬ê¸°
+//  ë©ˆì¶© ìƒíƒœì—ì„œ ë§ˆìš°ìŠ¤ í´ë¦­ ë“œë˜ê·¸
+//  ë¸ŒëŸ¬ì‰¬ í¬ê¸° 1~9
 #pragma pack(push, 4)
 struct TSnowUnit{
     float x, y;
@@ -21,7 +21,7 @@ struct TSnowUnit{
 
     byte power;
     byte Immune_Wind;
-    byte cntCollison; //Åë°è Ãæµ¹ Ä«¿îÆÃ
+    byte cntCollison; //í†µê³„ ì¶©ëŒ ì¹´ìš´íŒ…
     char maxWave;
 };
 struct TPixel{
@@ -29,7 +29,7 @@ struct TPixel{
     BYTE snow_color;
 
     INT16 at;// attach point
-    // Çã°ø(È®Àå°¡´É) -1
+    // í—ˆê³µ(í™•ì¥ê°€ëŠ¥) -1
     // const short gc_AT_Ground = 30;;
     // const short gc_AT_Object = 20;
     // const short gc_AT_Snow = 10;
@@ -93,10 +93,10 @@ namespace DATA{
     int g_flagViewMode = 0;
     const int gc_MaxViewMode = 3;
     // g_flagViewMode
-    //  0 ÀÏ¹İ
-    //  1 ´« µ¿ÀûÀÎ
-    //  2 ´« Á¤ÀûÀÎ
-    //  3 Ãæµ¹¸Ê
+    //  0 ì¼ë°˜
+    //  1 ëˆˆ ë™ì ì¸
+    //  2 ëˆˆ ì •ì ì¸
+    //  3 ì¶©ëŒë§µ
 
     const int gc_ScreenSizeWidth = 1024;
     const int gc_ScreenSizeHeight = 768;
@@ -107,13 +107,13 @@ namespace DATA{
     const int gc_maxVerticalSpeed = 3; // byte
     const int gc_maxWindSpeed = 10;
 
-    // ¹Ù´Ú / ¿ÀºêÁ§Æ®¿¡ ´«ÀÌ ½×ÀÌ´Â ÃÖ´ë ³ôÀÌ
+    // ë°”ë‹¥ / ì˜¤ë¸Œì íŠ¸ì— ëˆˆì´ ìŒ“ì´ëŠ” ìµœëŒ€ ë†’ì´
     const short gc_AT_Ground = 30;;
     const short gc_AT_Object = 20;
     const short gc_AT_Snow = 10;
 
-    // ½×ÀÌ´Â ´«ÀÇ ¹ĞÁıµµ
-    // ¼öÄ¡°¡ ³ôÀ¸¸é ÃµÃµÈ÷ °ß°íÇÏ°Ô ½×ÀÎ´Ù
+    // ìŒ“ì´ëŠ” ëˆˆì˜ ë°€ì§‘ë„
+    // ìˆ˜ì¹˜ê°€ ë†’ìœ¼ë©´ ì²œì²œíˆ ê²¬ê³ í•˜ê²Œ ìŒ“ì¸ë‹¤
     const UINT32 gc_magicCODE = 128;
 
     const int gc_StartPos__Top = 128;
@@ -158,20 +158,20 @@ namespace DATA{
     const UINT16 gc_minLife = gc_StartPos__Top / gc_minVerticalSpeed;
     const byte gc_minSizeBigSnow = 200;
 
-    // ÃÖ´ë ´«µ¢ÀÌ ¼ö´Â È­¸éÇÈ¼¿¼öÀÇ 50%
-    // 640 * 480 ±âÁØ 240KB
+    // ìµœëŒ€ ëˆˆë©ì´ ìˆ˜ëŠ” í™”ë©´í”½ì…€ìˆ˜ì˜ 50%
+    // 640 * 480 ê¸°ì¤€ 240KB
     const int gc_nSnowUnits = gc_ScreenSizeWidth * gc_ScreenSizeHeight / 2;
     TSnowUnit g_SnowUnits[gc_nSnowUnits] = {0};
 
-    // ÃÖ¼Ò Æ½Æ½ 1%
+    // ìµœì†Œ í‹±í‹± 1%
     const int gc_iStepUsingSnowUnits = gc_nSnowUnits / 100;
     static_assert(0 < gc_iStepUsingSnowUnits, "");
     
-    // ÃÊ±â ¼³Á¤
+    // ì´ˆê¸° ì„¤ì •
     int g_nUsingSnowUnits = gc_iStepUsingSnowUnits;
     int g_iLastLiveUnitIndex = g_nUsingSnowUnits - 1;
 
-    // ¾Æ·¡·Î ³»·Á°¡±â ¶§¹®¿¡ ÀÏ¹İÀû [y][x] °¡ ¾Æ´Ñ [x][y]·Î »ç¿ëÇÑ´Ù....
+    // ì•„ë˜ë¡œ ë‚´ë ¤ê°€ê¸° ë•Œë¬¸ì— ì¼ë°˜ì  [y][x] ê°€ ì•„ë‹Œ [x][y]ë¡œ ì‚¬ìš©í•œë‹¤....
     const int gc_MapSizeWidth = gc_ScreenSizeWidth+(gc_maxHorizonWave*2);
     const int gc_MapSizeHeight = gc_ScreenSizeHeight+gc_maxVerticalSpeed;
     TPixel g_Map[gc_MapSizeWidth][gc_MapSizeHeight] = {0};
@@ -214,13 +214,13 @@ namespace DATA{
     INT64 g_stats_SnowUnitDraw_Counting = 0;
     INT64 g_stats_SnowUnitCollision_Counting = 0;
     INT64 g_stats_SnowUnitStack_Counting = 0;
-    INT64 g_stats_SnowUnitCollapse_Counting = 0;  // ºØ±«
+    INT64 g_stats_SnowUnitCollapse_Counting = 0;  // ë¶•ê´´
 
     INT64 g_stats_SnowUnitActive_Average = 0;
     INT64 g_stats_SnowUnitDraw_Average = 0;
     INT64 g_stats_SnowUnitCollision_Average = 0;
     INT64 g_stats_SnowUnitStack_Average = 0;
-    INT64 g_stats_SnowUnitCollapse_Average = 0;  // ºØ±«
+    INT64 g_stats_SnowUnitCollapse_Average = 0;  // ë¶•ê´´
 }
 struct TPixelColor{
     BYTE B;
@@ -333,7 +333,7 @@ BOOL UpdateFPS(const LONGLONG& elapsed, const LONGLONG& TickperSec)
     return TRUE;
 }
 #include <chrono>
-                                                // ÀÌ ÄÚµå ¸ğµâ¿¡ µé¾î ÀÖ´Â ÇÔ¼öÀÇ Á¤¹æÇâ ¼±¾ğÀÔ´Ï´Ù.
+                                                // ì´ ì½”ë“œ ëª¨ë“ˆì— ë“¤ì–´ ìˆëŠ” í•¨ìˆ˜ì˜ ì •ë°©í–¥ ì„ ì–¸ì…ë‹ˆë‹¤.
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -347,12 +347,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    // TODO: ¿©±â¿¡ ÄÚµå¸¦ ÀÔ·ÂÇÕ´Ï´Ù.
+    // TODO: ì—¬ê¸°ì— ì½”ë“œë¥¼ ì…ë ¥í•©ë‹ˆë‹¤.
 
-    // Àü¿ª ¹®ÀÚ¿­À» ÃÊ±âÈ­ÇÕ´Ï´Ù.
+    // ì „ì—­ ë¬¸ìì—´ì„ ì´ˆê¸°í™”í•©ë‹ˆë‹¤.
     MyRegisterClass(hInstance);
 
-    // ÀÀ¿ë ÇÁ·Î±×·¥ ÃÊ±âÈ­¸¦ ¼öÇàÇÕ´Ï´Ù.
+    // ì‘ìš© í”„ë¡œê·¸ë¨ ì´ˆê¸°í™”ë¥¼ ìˆ˜í–‰í•©ë‹ˆë‹¤.
     if (!InitInstance (hInstance, nCmdShow))
     {
         return FALSE;
@@ -361,7 +361,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     MSG msg;
 
-    // ±âº» ¸Ş½ÃÁö ·çÇÁÀÔ´Ï´Ù.
+    // ê¸°ë³¸ ë©”ì‹œì§€ ë£¨í”„ì…ë‹ˆë‹¤.
     BOOL bQuit = FALSE;
 
     ::SetThreadAffinityMask(::GetCurrentThread(), 1);
@@ -417,7 +417,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
             if(DATA::g_flagMode != DATA::E_MODE::E_Benchmark)
             {
-                // º¥Ä¡¸¶Å· Á¾·á
+                // ë²¤ì¹˜ë§ˆí‚¹ ì¢…ë£Œ
                 DATA::g_flagPause = TRUE;
                 if(DATA::g_Benchmark_Score_Best < DATA::g_Benchmark_Score)
                     DATA::g_Benchmark_Score_Best = DATA::g_Benchmark_Score;
@@ -473,7 +473,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
-    hInst = hInstance; // ÀÎ½ºÅÏ½º ÇÚµéÀ» Àü¿ª º¯¼ö¿¡ ÀúÀåÇÕ´Ï´Ù.
+    hInst = hInstance; // ì¸ìŠ¤í„´ìŠ¤ í•¸ë“¤ì„ ì „ì—­ ë³€ìˆ˜ì— ì €ì¥í•©ë‹ˆë‹¤.
 
     HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
         CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
@@ -499,7 +499,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 void Draw_from_Mouse();
 void ShowHelpWindow(HWND hWnd)
 {
-    // ¹æÇâ±â wasd
+    // ë°©í–¥ê¸° wasd
     ::MessageBoxA(DATA::g_hwnd,
         "- shortcut key -\n"
         "Reset\n\tF5\n"
@@ -534,7 +534,7 @@ void Reset()
             DATA::g_Map[i][j].at = DATA::gc_AT_Ground;
         }
     }
-    // ÃÖÇÏ´Ü ´«½×ÀÓ °¡´É ¼Ó¼º ON
+    // ìµœí•˜ë‹¨ ëˆˆìŒ“ì„ ê°€ëŠ¥ ì†ì„± ON
     for(int i=0;i<DATA::gc_MapSizeWidth; i++)
         DATA::g_Map[i][DATA::gc_ScreenSizeHeight-1].at = -1;
 
@@ -603,7 +603,7 @@ void RequestBenchmark()
 
     char str[1024];
     sprintf_s(str, "Time Consumption %s\n"
-        "¡Ø Tese CPU CORE = index 0\n"
+        "â€» Tese CPU CORE = index 0\n"
         "Continue ?"
         , strHMS);
 
@@ -615,7 +615,7 @@ void RequestBenchmark()
 
     DATA::g_nUsingSnowUnits = DATA::gc_iStepUsingSnowUnits;
     DATA::g_iLastLiveUnitIndex = DATA::g_nUsingSnowUnits - 1;
-    //DATA::g_Speed = º¥Ä¡¸¶Å·¿¡¼­´Â »ç¿ëÇÏÁö ¾Ê´Â´Ù
+    //DATA::g_Speed = ë²¤ì¹˜ë§ˆí‚¹ì—ì„œëŠ” ì‚¬ìš©í•˜ì§€ ì•ŠëŠ”ë‹¤
     DATA::g_Wind = 0;
 
     DATA::g_flagAutoEnvironment = TRUE;
@@ -707,25 +707,33 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             break;
 
         case VK_UP:
+            if(DATA::g_flagMode == DATA::E_MODE::E_Game_Poop)
+                break;
             MaxUnitsIncrement();
             break;
         case VK_DOWN:
+            if(DATA::g_flagMode == DATA::E_MODE::E_Game_Poop)
+                break;
             MaxUnitsDecrement();
             break;
         case VK_LEFT:
+            if(DATA::g_flagMode == DATA::E_MODE::E_Game_Poop)
+                break;
             if(-DATA::gc_maxWindSpeed < DATA::g_Wind)
                 DATA::g_Wind--;
             break;
         case VK_RIGHT:
+            if(DATA::g_flagMode == DATA::E_MODE::E_Game_Poop)
+                break;
             if(DATA::g_Wind < DATA::gc_maxWindSpeed)
                 DATA::g_Wind++;
             break;
-        case VK_PRIOR: // ÆäÀÌÁö¾÷
+        case VK_PRIOR: // í˜ì´ì§€ì—…
             DATA::g_Speed++;
             if(32 < DATA::g_Speed)
                 DATA::g_Speed = 32;
             break;
-        case VK_NEXT: // ÆäÀÌÁö ´Ù¿î
+        case VK_NEXT: // í˜ì´ì§€ ë‹¤ìš´
             if(DATA::g_Speed > 1)
                 DATA::g_Speed--;
             break;
@@ -748,7 +756,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hWnd, &ps);
-        // TODO: ¿©±â¿¡ hdc¸¦ »ç¿ëÇÏ´Â ±×¸®±â ÄÚµå¸¦ Ãß°¡ÇÕ´Ï´Ù.
+        // TODO: ì—¬ê¸°ì— hdcë¥¼ ì‚¬ìš©í•˜ëŠ” ê·¸ë¦¬ê¸° ì½”ë“œë¥¼ ì¶”ê°€í•©ë‹ˆë‹¤.
         EndPaint(hWnd, &ps);
         break;
     }
@@ -824,14 +832,14 @@ void Recycle(TSnowUnit* p)
     p->life = DATA::gc_minLife + rand() % rndLife;
 
     p->power = rand() % 256;
-    // ´«»öÀº ³Ê¹« ¾îµÓÁö ¾Ê°Ô
+    // ëˆˆìƒ‰ì€ ë„ˆë¬´ ì–´ë‘¡ì§€ ì•Šê²Œ
     p->power = max(p->power, 64);
 
 
     p->vectorX = GetRandom_Vector_H();
     p->vectorY = GetRandom_Vector_V();
     if(p->power >= DATA::gc_minSizeBigSnow)
-        p->vectorX /= 2; // Å«À¯´ÖÀº Èçµé¸²ÀÌ 50%
+        p->vectorX /= 2; // í°ìœ ë‹›ì€ í”ë“¤ë¦¼ì´ 50%
     p->maxWave = -p->vectorX;
 
     p->Immune_Wind = 0;
@@ -843,7 +851,7 @@ void DrawPixel(int x, int y, TPixelColor cor)
     if(x >= DATA::gc_ScreenSizeWidth) return;
     if(y < 0) return;
     if(y >= DATA::gc_ScreenSizeHeight) return;
-    // ºñÈ¿À²ÀÇ ±ØÄ¡Áö¸¸ ³ª´Â ¸Å¿ì ±ÍÂú´Ù...
+    // ë¹„íš¨ìœ¨ì˜ ê·¹ì¹˜ì§€ë§Œ ë‚˜ëŠ” ë§¤ìš° ê·€ì°®ë‹¤...
     TPixelColor ori = GetPixel(DATA::g_pBitmapB, x, y);
     if(cor <= ori)
         return;
@@ -855,7 +863,7 @@ void DrawSnow(int x, int y, TSnowUnit& unit)
 {
     UINT32 power = unit.power;
     
-    // ¼ö¸íÀÌ ´ÙÇØ°¡´Â °ÍÀº ¾îµÓ°Ô
+    // ìˆ˜ëª…ì´ ë‹¤í•´ê°€ëŠ” ê²ƒì€ ì–´ë‘¡ê²Œ
     //if(unit.life < 32)
     {
         power = power * unit.life / 32;
@@ -887,7 +895,7 @@ void DrawSnow(int x, int y, TSnowUnit& unit)
     TPixelColor c0(r, g, b);
     if(DATA::gc_minSizeBigSnow <= power)
     {
-        // Á»´õ Å©°Ô ±×¸±±î....
+        // ì¢€ë” í¬ê²Œ ê·¸ë¦´ê¹Œ....
         DrawPixel(x, y, c0);
 
         TPixelColor c1(r/2, g/2, b/2);
@@ -968,14 +976,14 @@ void CollisionProcess_Near(int xM, int yM, UINT32 c);
 BOOL Snow__dynamic_to_static(int xM, int yM, TSnowUnit& unit)
 {
     if(!Query_InScreen(xM, yM))
-        return TRUE; // Á¦°Å
+        return TRUE; // ì œê±°
 
     using namespace DATA;
     if(unit.power < 4) return TRUE;
 
     assert(-1 == g_Map[xM][yM].at);
 
-    // ÀÏÁ¤ È®·ü·Î ¹Ì²ô·¯Áø´Ù
+    // ì¼ì • í™•ë¥ ë¡œ ë¯¸ë„ëŸ¬ì§„ë‹¤
     if(unit.life >= 32)
     {
         return FALSE;
@@ -984,9 +992,9 @@ BOOL Snow__dynamic_to_static(int xM, int yM, TSnowUnit& unit)
     }
     
 
-     //ÀÏÁ¤ È®·ü·Î À¯´ÖÀº ±×³É »ç¶óÁø´Ù
+     //ì¼ì • í™•ë¥ ë¡œ ìœ ë‹›ì€ ê·¸ëƒ¥ ì‚¬ë¼ì§„ë‹¤
     //if(0 != rand()%5)
-    //    return TRUE; // Á¦°Å
+    //    return TRUE; // ì œê±°
     
 
     {
@@ -996,7 +1004,7 @@ BOOL Snow__dynamic_to_static(int xM, int yM, TSnowUnit& unit)
         SetPixel_to_Ground(xM-gc_maxHorizonWave, yM, g_Map[xM][yM].GetSnowColor());
     }
 
-    //// ÁÖº¯ ¹øÁü(ÀÌ°ÍÀ» Ã³¸®ÇÏÁö ¾ÊÀ¸¸é ¸Å¿ì ÈäÇÏ´Ù)
+    //// ì£¼ë³€ ë²ˆì§(ì´ê²ƒì„ ì²˜ë¦¬í•˜ì§€ ì•Šìœ¼ë©´ ë§¤ìš° í‰í•˜ë‹¤)
     //{
     //    UINT32 c1 = (UINT32)(unit.power*0.2);
     //    //CollisionProcess_Near(xM, yM-1, c1);
@@ -1011,7 +1019,7 @@ BOOL Snow__dynamic_to_static(int xM, int yM, TSnowUnit& unit)
     //    CollisionProcess_Near(xM+1, yM+1, c2);
     //}
 
-    // ´«ÀÌ ÃæºĞÈ÷ ½×ÀÌ¸é ÁÖº¯ Å¸ÀÏÀ» °»½Å
+    // ëˆˆì´ ì¶©ë¶„íˆ ìŒ“ì´ë©´ ì£¼ë³€ íƒ€ì¼ì„ ê°±ì‹ 
     BOOL bClose = FALSE;;
     if(g_Map[xM][yM].GetSnowColor() >= 255)
         bClose = TRUE;
@@ -1024,7 +1032,7 @@ BOOL Snow__dynamic_to_static(int xM, int yM, TSnowUnit& unit)
         }
         else if(_SelCode==1)
         {
-            //// ÁÖº¯ Å¸ÀÏÀÇ »ö°ú ºñ½ÁÇÏ°Ô ¸ÂÃß±â À§ÇÏ¿©...
+            //// ì£¼ë³€ íƒ€ì¼ì˜ ìƒ‰ê³¼ ë¹„ìŠ·í•˜ê²Œ ë§ì¶”ê¸° ìœ„í•˜ì—¬...
             //BOOL bRealWhite = TRUE;
             //if(g_Map[xM-1][yM].at == DATA::gc_AT_Snow && g_Map[xM-1][yM].GetSnowColor() != 255) bRealWhite = FALSE;
             //else if(g_Map[xM+1][yM].at == DATA::gc_AT_Snow && g_Map[xM+1][yM].GetSnowColor() != 255) bRealWhite = FALSE;
@@ -1266,9 +1274,21 @@ void Draw_InfoText()
         break;
 
     case DATA::E_MODE::E_Game_Poop:
-        len = sprintf_s(str, SizeBuffer, "%llu", (UINT64)DATA::g_PoopGame_Score);
-        break;
+        {
+            float fLife = 0.f;
+            if((float)DATA::g_PoopGamePlayer.Setting.sc_Size_MaxRadius > DATA::g_PoopGamePlayer.fSize)
+            {
+                float fLifeMax = DATA::g_PoopGamePlayer.Setting.sc_Size_MaxRadius - DATA::g_PoopGamePlayer.Setting.sc_Size_MinRadius;
+                fLife = (float)DATA::g_PoopGamePlayer.Setting.sc_Size_MaxRadius - DATA::g_PoopGamePlayer.fSize;
+                fLife = fLife / fLifeMax * 100.f;
+            }
 
+            len = sprintf_s(str, SizeBuffer, "Score %llu\n"
+                "Life %u%%"
+                , (UINT64)DATA::g_PoopGame_Score
+                , (UINT32)fLife);
+        }
+        break;
     default:
         if(0 < DATA::g_Benchmark_Score)
         {
@@ -1323,7 +1343,7 @@ void Draw_InfoText()
 void DrawATMap_or_SnowMap()
 {
     // g_flagViewMode
-    //  2 ´Ş¶ó ºÙÀº ´«
+    //  2 ë‹¬ë¼ ë¶™ì€ ëˆˆ
     //  3 AT MAP
     for(int x=0; x<DATA::gc_ScreenSizeWidth; x++)
     {
@@ -1409,7 +1429,7 @@ BOOL FindOpenDirection_and_ReVector(TSnowUnit& u, float fVecX, float fVecY, floa
     };
 
 
-    // ÁøÇà¹æÇâ
+    // ì§„í–‰ë°©í–¥
     const int SequenceBL[] = {5, 6, 7, 3, 4, 0, 1, 2};
     const int SequenceBR[] = {7, 6, 5, 4, 3, 2, 1, 0};
     const int SequenceLB[] = {5, 3, 0, 6, 1, 7, 4, 2};
@@ -1454,10 +1474,10 @@ BOOL FindOpenDirection_and_ReVector(TSnowUnit& u, float fVecX, float fVecY, floa
             pSelect_Sequence = (isLeftDirection)? SequenceLB : SequenceRB;
     }
 
-    // Ãß°¡±â´É
-    // ÀÌÀü ½ºÄ«¶ó¸¦°ª¸¦ °¨¼âÇÏ¿© »ç¿ë ÃÖ¼Ò°ªÀº 1
-    // ÀÌÀü º¤ÅÍ x ,y ÀÇ ºñÀ²À» ¼­·Î ±³È¯ÇÏ¿©
-    // Æ¨°Ü³»µµ·Ï
+    // ì¶”ê°€ê¸°ëŠ¥
+    // ì´ì „ ìŠ¤ì¹´ë¼ë¥¼ê°’ë¥¼ ê°ì‡„í•˜ì—¬ ì‚¬ìš© ìµœì†Œê°’ì€ 1
+    // ì´ì „ ë²¡í„° x ,y ì˜ ë¹„ìœ¨ì„ ì„œë¡œ êµí™˜í•˜ì—¬
+    // íŠ•ê²¨ë‚´ë„ë¡
     for(int i=0; i<8; i++)
     {
         const POINT& pt = arrPT[pSelect_Sequence[i]];
@@ -1482,8 +1502,8 @@ BOOL FindOpenDirection_and_ReVector(TSnowUnit& u, float fVecX, float fVecY, floa
         //----------------------------------------------------------------
         //  #2
 
-        //float fNewScalar = fDistance * 0.75f; // °¨¼âÇÒ°Í
-        // ÀÌÀü ¼öÁ÷ ¼öÆòº¤ÅÍ¸¦ ±³È¯
+        //float fNewScalar = fDistance * 0.75f; // ê°ì‡„í• ê²ƒ
+        // ì´ì „ ìˆ˜ì§ ìˆ˜í‰ë²¡í„°ë¥¼ êµí™˜
         //float fNewVecX = 10 * fNewScalar * abs(fVecY);
         //float fNewVecY = 10 * fNewScalar * abs(fVecX);
         //if(fNewVecX > 100)
@@ -1491,19 +1511,19 @@ BOOL FindOpenDirection_and_ReVector(TSnowUnit& u, float fVecX, float fVecY, floa
         //if(fNewVecY > 100)
         //    fNewVecY = 100;
 
-        //// »õ·Î¿î ¹æÇâ Àû¿ë
+        //// ìƒˆë¡œìš´ ë°©í–¥ ì ìš©
         //fNewVecX *= pt.x;
         //fNewVecY *= pt.y;
         //u.vectorX = (char)fNewVecX;
         //u.vectorY = (char)fNewVecY;
         //----------------------------------------------------------------
         //  #3
-        //float fNewScalar = fDistance * 0.8f; // °¨¼âÇÒ°Í
+        //float fNewScalar = fDistance * 0.8f; // ê°ì‡„í• ê²ƒ
         //u.vectorX = 10 * fNewScalar * -fVecX;
         //u.vectorY = 10 * fNewScalar * fVecY;
         //----------------------------------------------------------------
         //  #4
-        float fNewScalar = fDistance * 0.5f; // °¨¼âÇÒ°Í
+        float fNewScalar = fDistance * 0.5f; // ê°ì‡„í• ê²ƒ
         if(fNewScalar < 1.f)
             fNewScalar = 1.f;
         else if(fNewScalar > DATA::g_fmaxSnowVectorDistance)
@@ -1536,10 +1556,10 @@ BOOL FindOpenDirection_and_ReVector(TSnowUnit& u, float fVecX, float fVecY, floa
     return FALSE;
 }
 
-// ±³Á¡À» ¸®ÅÏÇÏµµ·Ï ÇÑ´Ù
+// êµì ì„ ë¦¬í„´í•˜ë„ë¡ í•œë‹¤
 BOOL FindIntersection_and_RePos(TSnowUnit& u, POINT& pt)
 {
-    // À¯´ÖÀº È­¸é¿¡ µé¾î¿Â°Í¸¸À» Å×½ºÆ®
+    // ìœ ë‹›ì€ í™”ë©´ì— ë“¤ì–´ì˜¨ê²ƒë§Œì„ í…ŒìŠ¤íŠ¸
 #ifdef _DEBUG
     static UINT64 stats0 = 0;
     static UINT64 stats1 = 0;
@@ -1566,8 +1586,8 @@ BOOL FindIntersection_and_RePos(TSnowUnit& u, POINT& pt)
     fVecY /= fDistance;
     assert(fVecX!=0.f || fVecY!=0.f);
 
-    // ¿ì¼±ÀûÀ¸·Î ÇöÀçÁöÁ¡¿¡¼­ Å»Ãâ ¹æÇâÀ» Ã£´Â´Ù¸é,
-    // ¼Óµµ´Â ºü¸£³ª ÀûÈ®µµ°¡ ¶³¾îÁø´Ù
+    // ìš°ì„ ì ìœ¼ë¡œ í˜„ì¬ì§€ì ì—ì„œ íƒˆì¶œ ë°©í–¥ì„ ì°¾ëŠ”ë‹¤ë©´,
+    // ì†ë„ëŠ” ë¹ ë¥´ë‚˜ ì í™•ë„ê°€ ë–¨ì–´ì§„ë‹¤
     //if(FindOpenDirection_and_ReVector(u, fVecX, fVecY, fDistance))
     //{
     //    INCREMENT_CNT(0);
@@ -1611,7 +1631,7 @@ BOOL FindIntersection_and_RePos(TSnowUnit& u, POINT& pt)
     if(FindOpenDirection_and_ReVector(u, fVecX, fVecY, fDistance))
         return FALSE;
 
-    // ÀÌ°æ¿ì ´«À» ½×ÀÌ°Ô ÇÒ °ÍÀÎ°¡? ¶Ç´Â Á¦°Å?
+    // ì´ê²½ìš° ëˆˆì„ ìŒ“ì´ê²Œ í•  ê²ƒì¸ê°€? ë˜ëŠ” ì œê±°?
     u.life = 0;
     INCREMENT_CNT(3);
     return FALSE;
@@ -1654,7 +1674,7 @@ void PixelAT_Test_isValid(int xM, int yM)
     if(DATA::g_Map[xM][yM].at != -1)
         return;
 
-    // ÁÖº¯Å¸ÀÏ °Ë»ç
+    // ì£¼ë³€íƒ€ì¼ ê²€ì‚¬
     for(int i=xM-1; i<=xM+1; i++)
     {
         for(int j=yM-1; j<=yM+1; j++)
@@ -1675,7 +1695,7 @@ void PixelAT_Test_isValid(int xM, int yM)
 }
 void PixelAT_Test_isValid_NearPixel(int xM, int yM)
 {
-    //// ¸¸¾à À­Ä­¿¡ ´«ÀÌ Á¸ÀçÇÑ´Ù¸é Ä§½Ä½ÃÅ²´Ù
+    //// ë§Œì•½ ìœ—ì¹¸ì— ëˆˆì´ ì¡´ì¬í•œë‹¤ë©´ ì¹¨ì‹ì‹œí‚¨ë‹¤
     //if(Query_isValid_xM_yM(xM, yM-1))
     //{
     //    if(DATA::g_Map[xM][yM-1].at == DATA::gc_AT_Snow)
@@ -1733,7 +1753,7 @@ void TestCollapseGroundSnow_from_DynamicSnow(TSnowUnit& u, POINT& pt)
     SetPixel_to_Ground(pt.x - DATA::gc_maxHorizonWave, pt.y, 0);
     PixelAT_Test_isValid_NearPixel(pt.x, pt.y);
 
-    // ÀÚ¿¬½º·´±â À§ÇØ¼­ ÁÖº¯Å¸ÀÏÀ» Èí¼öÇÑ´Ù
+    // ìì—°ìŠ¤ëŸ½ê¸° ìœ„í•´ì„œ ì£¼ë³€íƒ€ì¼ì„ í¡ìˆ˜í•œë‹¤
     const BOOL bEraseNearSnow = 0;
     if(bEraseNearSnow)
     {
@@ -1762,7 +1782,7 @@ void TestCollapseGroundSnow_from_DynamicSnow(TSnowUnit& u, POINT& pt)
     //int yUM = (int)(u.y+0.5f);
     //if(DATA::g_Map[xUM][yUM].at == -1)
     //{
-    //    // À¯´ÖÀÌ À§Ä¡ÇÑ Á¡ÀÌ ´«ÀÌ È®Àå °¡´ÉÇÑ ¿µ¿ªÀÌ¶ó¸é ¼Ó¼º Á¦°Å
+    //    // ìœ ë‹›ì´ ìœ„ì¹˜í•œ ì ì´ ëˆˆì´ í™•ì¥ ê°€ëŠ¥í•œ ì˜ì—­ì´ë¼ë©´ ì†ì„± ì œê±°
     //    DATA::g_Map[xUM][yUM].at = 0;
     //    DATA::g_Map[xUM][yUM].SetSnowColor(0);
     //    SetPixel_to_Ground(xUM - DATA::gc_maxHorizonWave, yUM, 0);
@@ -1823,11 +1843,11 @@ void FrameProcess()
         unit.life--;
 
         {
-            // À§·Î ¿Ã¶ó°¡°Å³ª ³Ê¹« ´À¸° À¯´Ö ³«ÇÏ °¡¼Ó
+            // ìœ„ë¡œ ì˜¬ë¼ê°€ê±°ë‚˜ ë„ˆë¬´ ëŠë¦° ìœ ë‹› ë‚™í•˜ ê°€ì†
             if(unit.vectorY < gc_minVerticalSpeed*10)
                 unit.vectorY+=2;
 
-            // ¼öÆò¼Óµµ Á¦ÇÑ
+            // ìˆ˜í‰ì†ë„ ì œí•œ
             if(abs(unit.vectorX) > gc_maxHorizonWave * 10)
             {
                 assert(typeid(unit.vectorX) == typeid(char));
@@ -1842,8 +1862,8 @@ void FrameProcess()
                 int iVal = _array_HorizonWaveStep[g_iSel_HorizonWaveStep++];
                 if(g_iSel_HorizonWaveStep == _maxHorizonWaveStep)
                     g_iSel_HorizonWaveStep = 0;
-                // Ãø¸é¹Ù¶÷ ÀúÇ×ÁßÀÌ ¾Æ´Ï¶ó¸é
-                // ÁÂ¿ì·Î Èçµé¸°´Ù
+                // ì¸¡ë©´ë°”ëŒ ì €í•­ì¤‘ì´ ì•„ë‹ˆë¼ë©´
+                // ì¢Œìš°ë¡œ í”ë“¤ë¦°ë‹¤
                 if(unit.maxWave < 0)
                 {
                     if(unit.vectorX <= unit.maxWave)
@@ -1892,7 +1912,7 @@ void FrameProcess()
         const int xM = xF + gc_maxHorizonWave;
         const int yM = yF;
 
-        // ½×ÀÓ
+        // ìŒ“ì„
         BOOL bAttach;
         if(/*unit.Immune_Wind ||*/ -1 != g_Map[xM][yM].at)
         {
@@ -1900,8 +1920,8 @@ void FrameProcess()
         }
         else
         {
-            // ÀÎÁ¢ Å¸ÀÏ Æò±Õ°ª°ú ºñ±³
-            // °¡ÁßÄ¡
+            // ì¸ì ‘ íƒ€ì¼ í‰ê· ê°’ê³¼ ë¹„êµ
+            // ê°€ì¤‘ì¹˜
             //  1   0   1
             //  2   3   2
             UINT32 sum = (UINT32)g_Map[xM-1][yM].GetSnowColor() /*+ (UINT32)g_Map[xM][yM].GetSnowColor()*/ + (UINT32)g_Map[xM+1][yM].GetSnowColor()
@@ -1916,7 +1936,7 @@ void FrameProcess()
 
             if(!bAttach)
             {
-                // ÀÎÁ¢ÇÑ Å¸ÀÏ ¼Ó¼ºÀ» È®ÀÎ
+                // ì¸ì ‘í•œ íƒ€ì¼ ì†ì„±ì„ í™•ì¸
                 INT16 sumAT = 0;
                 for(int i=-1; i<=1; i++)
                 {
@@ -1940,7 +1960,7 @@ void FrameProcess()
         }
 
 
-        // Ãæµ¹, ¹Ğ¾î³»±â
+        // ì¶©ëŒ, ë°€ì–´ë‚´ê¸°
         if(!bAttach)
         {
             BOOL bCollision;
@@ -1960,9 +1980,9 @@ void FrameProcess()
                     assert(0 <= pt.y);
                     if(g_Map[pt.x][pt.y].at == gc_AT_Snow)
                     {
-                        // µ¿ÀûÀÎ ´«ÀÌ Á¤ÀûÀÎ ½×ÀÎ ´«À» Èí¼ö
-                        //      °³¼±ÇÑ´Ù¸é Èí¼ö°¡ ¾Æ´Ï¶ó »õ·Î¿î ´« »ı¼º
-                        // ´Ü ÀÌ°ÍÀº ½Ã°¢ÀûÀ¸·Î º¼¶§ ÇöÀç µ¿ÀûÀÎ ´«ÀÌ ÃæºĞÈ÷ Ä¿¾ß ¾î»öÇÏÁö ¾Ê´Ù
+                        // ë™ì ì¸ ëˆˆì´ ì •ì ì¸ ìŒ“ì¸ ëˆˆì„ í¡ìˆ˜
+                        //      ê°œì„ í•œë‹¤ë©´ í¡ìˆ˜ê°€ ì•„ë‹ˆë¼ ìƒˆë¡œìš´ ëˆˆ ìƒì„±
+                        // ë‹¨ ì´ê²ƒì€ ì‹œê°ì ìœ¼ë¡œ ë³¼ë•Œ í˜„ì¬ ë™ì ì¸ ëˆˆì´ ì¶©ë¶„íˆ ì»¤ì•¼ ì–´ìƒ‰í•˜ì§€ ì•Šë‹¤
   //                      if(unit.power >= gc_minSizeBigSnow)
 //                            TestCollapseGroundSnow_from_DynamicSnow(unit, pt);
                     }
@@ -2083,7 +2103,7 @@ void FrameProcess_PoopGame_Player()
 
 
 
-    // Ãæµ¹ Å×½ºÆ®
+    // ì¶©ëŒ í…ŒìŠ¤íŠ¸
     int sx = static_cast<int>(DATA::g_PoopGamePlayer.fX - DATA::g_PoopGamePlayer.fSize + 0.5f);
     int sy = static_cast<int>(DATA::g_PoopGamePlayer.fY - DATA::g_PoopGamePlayer.fSize + 0.5f);
     int ex = static_cast<int>(DATA::g_PoopGamePlayer.fX + DATA::g_PoopGamePlayer.fSize + 0.5f);
@@ -2118,7 +2138,7 @@ void FrameProcess_PoopGame_Player()
             if(mY < 0 || DATA::gc_MapSizeHeight <= mY)
                 continue;
 
-            // Çã°øÀÌ ¾Æ´Ï¶ó¸é Ãæµ¹ Ã³¸®ÇØ¾ß ÇÑ´Ù
+            // í—ˆê³µì´ ì•„ë‹ˆë¼ë©´ ì¶©ëŒ ì²˜ë¦¬í•´ì•¼ í•œë‹¤
             if(!DATA::g_Map[mX][mY].snow_unit)
                 continue;
             if(DATA::g_Map[mX][mY].at != 0)
@@ -2132,7 +2152,7 @@ void FrameProcess_PoopGame_Player()
     }
     if(!bCollision)
     {
-        // Å©±â °¨¼Ò
+        // í¬ê¸° ê°ì†Œ
         float fReduction = (float)DATA::g_PoopGamePlayer.Setting.sc_Recduction_per_Sec__Numerator / (float)DATA::g_PoopGamePlayer.Setting.sc_Recduction_per_Sec__Denominator;
         DATA::g_PoopGamePlayer.fSize -= (spf * fReduction);
         if(DATA::g_PoopGamePlayer.fSize < DATA::g_PoopGamePlayer.Setting.sc_Size_MinRadius)
@@ -2197,7 +2217,7 @@ void RenderProcess()
 
     Draw_InfoText();
     ::BitBlt(g_hdc, 0, 0, W, H, g_hdcB, 0, 0, SRCCOPY);
-    // ¹ÙÅÁÈ­¸éµµ °¡´É
+    // ë°”íƒ•í™”ë©´ë„ ê°€ëŠ¥
     //auto hDeskTop = GetDC(0);
     //::BitBlt(hDeskTop, 0, 0, W, H, g_hdcB, 0, 0, SRCCOPY);
     //::ReleaseDC(0, hDeskTop);
@@ -2258,21 +2278,21 @@ void AutoWind()
     DATA::g_AutoWind_NextTick = (int)(DATA::gc_fps * 0.1f);
     
     //if(DATA::g_Wind == 0 && 85 > rand() % 100)
-    //    return; // ¹«Ç³ÀÎ °æ¿ì 85%È®·ü·Î À¯Áö
+    //    return; // ë¬´í’ì¸ ê²½ìš° 85%í™•ë¥ ë¡œ ìœ ì§€
     float fWindNormal = (float)DATA::g_Wind / DATA::gc_maxWindSpeed;
     int chance = (int)(100.f * abs(fWindNormal));
     chance = min(chance, 10);
     if(chance < rand() % 100)
         return;
 
-    // ¹æÇâ °áÁ¤
+    // ë°©í–¥ ê²°ì •
     int newDirection = -1 + rand()%3;
     if(newDirection == 0)
         return;
     if(0 != DATA::g_AutoWind_ModifyPower)
     {
         int prevDirection = ((DATA::g_AutoWind_ModifyPower < 0)? -1 : +1);
-        if(0 == newDirection + prevDirection)// ÀÌÀü¹æÇâ »õ·Î¿î¹æÇâÀÌ ´Ù¸£´Ù¸é
+        if(0 == newDirection + prevDirection)// ì´ì „ë°©í–¥ ìƒˆë¡œìš´ë°©í–¥ì´ ë‹¤ë¥´ë‹¤ë©´
         {
             if(0 != rand()%(abs(DATA::g_AutoWind_ModifyPower)+1))
                 return;
@@ -2280,7 +2300,7 @@ void AutoWind()
         }
         else if(0 != rand() % (min(abs(DATA::g_Wind), abs(DATA::g_AutoWind_ModifyPower))+1))
         {
-            // ¿¬¼Ó º¯È­ ´©ÀûÀÌ Å¬ ¼ö·Ï È®·üÀº Àû¾îÁø´Ù
+            // ì—°ì† ë³€í™” ëˆ„ì ì´ í´ ìˆ˜ë¡ í™•ë¥ ì€ ì ì–´ì§„ë‹¤
             return;
         }
     }
@@ -2313,11 +2333,11 @@ void AutoSnowIncrement_Normal()
     DATA::g_AutoSnowIncrement_NextTime_Remaining = (float)GetRandomTime(2, 4);;
 
 
-    // Áõ°¡ È®·ü °áÁ¤ : ÇöÀç fps ¸¦ ±âÁØ fps¿Í ºñ±³ÇÏ¿© °áÁ¤
+    // ì¦ê°€ í™•ë¥  ê²°ì • : í˜„ì¬ fps ë¥¼ ê¸°ì¤€ fpsì™€ ë¹„êµí•˜ì—¬ ê²°ì •
     int up;
-    if(DATA::g_stats_FPS >= DATA::gc_fps * 0.9) // ±âÁØ fps 90% ÀÌ»ó
+    if(DATA::g_stats_FPS >= DATA::gc_fps * 0.9) // ê¸°ì¤€ fps 90% ì´ìƒ
         up = 60;
-    else if(DATA::g_stats_FPS < DATA::gc_fps * 0.8) // ±âÁØ fps 80% ¹Ì¸¸
+    else if(DATA::g_stats_FPS < DATA::gc_fps * 0.8) // ê¸°ì¤€ fps 80% ë¯¸ë§Œ
         up = 40;
     else
         up = 50;
@@ -2329,9 +2349,9 @@ void AutoSnowIncrement_Normal()
 }
 void AutoSnowIncrement_Benchmarking()
 {
-    // º¥Ä¡¸¶Å· Å×½ºÆ® ½Ã°£À» ±âÁØÀ¸·Î
-    // ½Ã°£5% ~ ½Ã°£90%
-    // ÃÖ¼ÒÀ¯´Ö ~ ÃÖ´ë À¯´Ö
+    // ë²¤ì¹˜ë§ˆí‚¹ í…ŒìŠ¤íŠ¸ ì‹œê°„ì„ ê¸°ì¤€ìœ¼ë¡œ
+    // ì‹œê°„5% ~ ì‹œê°„90%
+    // ìµœì†Œìœ ë‹› ~ ìµœëŒ€ ìœ ë‹›
     auto maxTime = DATA::gc_Benchmark_TimeConsumptionSec * DATA::g_Benchmark_Tick_per_Sec;
     auto perTime = DATA::g_Benchmark_TimeRemaining / (double)maxTime;
     perTime = 1. - perTime; // 1~0 -> 0~1
